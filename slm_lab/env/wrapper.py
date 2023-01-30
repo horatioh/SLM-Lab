@@ -5,6 +5,7 @@ from collections import deque
 from gym import spaces
 from slm_lab.lib import util
 import gym
+import gym_anytrading
 import numpy as np
 
 
@@ -400,6 +401,28 @@ def make_gym_env(name, seed=None, frame_op=None, frame_op_len=None, image_downsi
         if frame_op is not None:
             Stacker = UnityVecFrameStack if name.startswith('Unity') else FrameStack
             env = Stacker(env, frame_op, frame_op_len)
+    env = TrackReward(env)  # auto-track total reward
+    if reward_scale is not None:
+        env = ScaleRewardEnv(env, reward_scale)
+    return env
+
+def make_trade_env(name, seed=None, window_size=None, reward_scale=None):
+    '''General method to create gym-anytrading Environment'''
+    df = gym_anytrading.datasets.STOCKS_GOOGL.copy()
+
+    window_size = 10
+    start_index = window_size
+    end_index = len(df)
+
+    env = gym.make(
+        name,
+        df = df,
+        window_size = window_size,
+        frame_bound = (start_index, end_index)
+        )
+
+    if seed is not None:
+        env.seed(seed)
     env = TrackReward(env)  # auto-track total reward
     if reward_scale is not None:
         env = ScaleRewardEnv(env, reward_scale)

@@ -1,6 +1,7 @@
 from slm_lab.env.base import BaseEnv
 from slm_lab.env.wrapper import make_gym_env
 from slm_lab.env.vec_env import make_gym_venv
+from slm_lab.env.wrapper import make_trade_env
 from slm_lab.env.registration import try_register_env
 from slm_lab.lib import logger, util
 from slm_lab.lib.decorator import lab_api
@@ -39,7 +40,10 @@ class OpenAIEnv(BaseEnv):
         if self.is_venv:  # make vector environment
             self.u_env = make_gym_venv(name=self.name, num_envs=self.num_envs, seed=seed, frame_op=self.frame_op, frame_op_len=self.frame_op_len, image_downsize=self.image_downsize, reward_scale=self.reward_scale, normalize_state=self.normalize_state, episode_life=episode_life)
         else:
-            self.u_env = make_gym_env(name=self.name, seed=seed, frame_op=self.frame_op, frame_op_len=self.frame_op_len, image_downsize=self.image_downsize, reward_scale=self.reward_scale, normalize_state=self.normalize_state, episode_life=episode_life)
+            if self.name.startswith('stocks'):
+                self.u_env = make_trade_env(name=self.name, seed=seed, window_size=self.window_size, reward_scale=self.reward_scale)
+            else:
+                self.u_env = make_gym_env(name=self.name, seed=seed, frame_op=self.frame_op, frame_op_len=self.frame_op_len, image_downsize=self.image_downsize, reward_scale=self.reward_scale, normalize_state=self.normalize_state, episode_life=episode_life)
         if self.name.startswith('Unity'):
             # Unity is always initialized as singleton gym env, but the Unity runtime can be vec_env
             self.num_envs = self.u_env.num_envs

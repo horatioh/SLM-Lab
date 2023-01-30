@@ -121,6 +121,9 @@ class BaseEnv(ABC):
             'num_envs',
             'max_t',
             'max_frame',
+            'df',
+            'window_size',
+            'frame_bound',
         ])
         if util.get_lab_mode() == 'eval':  # override if env is for eval
             self.num_envs = ps.get(spec, 'meta.rigorous_eval')
